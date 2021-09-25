@@ -2,7 +2,7 @@ from telegram import InlineKeyboardButton
 
 keyboard = [
     [InlineKeyboardButton('Добавить вещь', callback_data='add')],
-    [InlineKeyboardButton('Посмотреть свои вещи', callback_data='goods')],  # TODO реализовать возможность смотреть свои вещи
+    [InlineKeyboardButton('Обменяться', callback_data='exchange')],  # TODO реализовать возможность смотреть свои вещи
     [InlineKeyboardButton('Найти вещь', callback_data='find')],
 ]
 

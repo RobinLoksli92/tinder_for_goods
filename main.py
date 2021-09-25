@@ -21,7 +21,7 @@ def start(update: Update, context: CallbackContext):
 
     context.bot.send_message(
         chat_id=chat_id,
-        text='Выбери действие',
+        text='Привет! Я помогу тебе обменять что-то ненужное на очень нужное. Чтобы разместить вещь к обмену напиши - “Добавить вещь”. После этого тебе станут доступны вещи других пользователей. Напиши “Найти вещь” и я пришлю тебе фотографии вещей для обмена. Понравилась вещь - пиши “Обменяться”, нет - снова набирай “Найти вещь”. Нажал “обменяться”? - если владельцу вещи понравится что-то из твоих вещей, то я пришлю контакты вам обоим.',
         reply_markup=InlineKeyboardMarkup(keyboards.keyboard)
     )
 
@@ -36,12 +36,8 @@ def main_menu_handler(update: Update, context: CallbackContext):
     if data == 'add':
         context.bot.send_message(
             chat_id=chat_id,
-            text='Заполни анкету вещи:',
+            text='Введи название вещи и отправь ссылку на её фото :',
             reply_markup=InlineKeyboardMarkup(keyboards.keyboard_add)
-        )
-        context.bot.delete_message(
-            chat_id=chat_id,
-            message_id=message_id
         )
         return 'ADD_GOOD'
     elif data == 'find':
@@ -54,40 +50,10 @@ def main_menu_handler(update: Update, context: CallbackContext):
             photo=good.get('photo'),
             reply_markup=InlineKeyboardMarkup(keyboards.keyboard_find)
         )
-        context.bot.delete_message(
-            chat_id=chat_id,
-            message_id=message_id
-        )
         return 'FIND_GOOD'
-    elif data == 'goods':
-        goods = goods_database.get(chat_id, {})
-        text = ''
-        for good in goods:
-            text += f"""\
-            Title: {good['title']}
-            Photo: {good['photo']}
-
-
-            """
-        context.bot.delete_message(
-            chat_id=chat_id,
-            message_id=message_id
-        )
-
-        context.bot.send_message(
-            chat_id=chat_id,
-            text=dedent(text),
-            reply_markup=InlineKeyboardMarkup(keyboards.keyboard),
-            disable_web_page_preview=True
-        )
-
-        return 'MAIN_MENU'
 
     return 'MAIN_MENU'
 
-
-def goods_handler(update: Update, context: CallbackContext):
-    return 'GOODS'
 
 
 def add_good_handler(update: Update, context: CallbackContext):
@@ -96,38 +62,28 @@ def add_good_handler(update: Update, context: CallbackContext):
     message_id = update.effective_message.message_id
 
     if data == 'add_title':
-        prev_message_id = context.bot.send_message(
+        context.bot.send_message(
             chat_id=chat_id,
-            text='Введи название товара: '
-        ).message_id
-        context.bot.delete_message(
-            chat_id=chat_id,
-            message_id=message_id
+            text='Введите название вашей вещи: '
         )
-        context.chat_data['previous_message'] = prev_message_id
         return 'ADD_GOOD_TITLE'
     elif data == 'add_photo':
-        prev_message_id = context.bot.send_message(
+        context.bot.send_message(
             chat_id=chat_id,
             text='Дай ссылку на картинку: '
-        ).message_id
-        context.bot.delete_message(
-            chat_id=chat_id,
-            message_id=message_id
         )
-        context.chat_data['previous_message'] = prev_message_id
         return 'ADD_GOOD_PHOTO'
     elif data == 'done':
         good = current_good_database.get(chat_id, {})
         text = ''
         if not good:
-            text += 'Невалидный товар\n'
+            text += 'Нет вещи\n'
         if not good.get('title'):
             text += 'Отсутствует название\n'
         if not good.get('photo'):
             text += 'Отсутствует картинка'
         if good:
-            text = 'Товар успешно добавлен'
+            text = 'Вещь успешно добавлена'
             user_goods = goods_database.get(chat_id, [])
             user_goods.append(good)
             goods_database.update({chat_id: user_goods})
@@ -137,10 +93,6 @@ def add_good_handler(update: Update, context: CallbackContext):
             chat_id=chat_id,
             text=text,
             reply_markup=InlineKeyboardMarkup(keyboards.keyboard)
-        )
-        context.bot.delete_message(
-            chat_id=chat_id,
-            message_id=message_id
         )
         return 'MAIN_MENU'
     elif data == 'back':
@@ -240,7 +192,6 @@ def handle_users_reply(update: Update, context: CallbackContext):
     states_functions = {
         'START': start,
         'MAIN_MENU': main_menu_handler,
-        'GOODS': goods_handler,
 
         'ADD_GOOD': add_good_handler,
         'ADD_GOOD_TITLE': add_good_title_handler,
@@ -256,7 +207,7 @@ def handle_users_reply(update: Update, context: CallbackContext):
 
 
 def main():
-    token = '1484358818:AAF8671_E1IVK1CUG_DwqgmnaONAsIAHotE'
+    token = '2022928188:AAEPoWTruKXN6nRZr6ranRUPzIr8Bum__XM'
     updater = Updater(token)
     dispatcher = updater.dispatcher
     dispatcher.add_handler(CommandHandler('start', handle_users_reply))
